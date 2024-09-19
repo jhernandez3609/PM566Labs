@@ -1,0 +1,165 @@
+---
+title: "Lab 3"
+author: "Jazmin Hernandez"
+format: pdf
+editor: visual
+embed-resources: true
+---
+
+# **Lab 03 - Exploratory Data Analysis**
+
+### ***1. Read in the data***
+
+```{r}
+met <- read.csv(file.path("~", "Github", "met_all.gz"))
+```
+
+### **2. Check the dimensions, headers, footers**
+
+```{r}
+head(met)
+dim(met)
+tail(met)
+```
+
+There are 30 columns and 6 rows.
+
+### **3. Take a look at the variables**
+
+```{r}
+str(met)
+```
+
+The key variables related to our question of interest are in the time variables, wind speed, temperature and elevation. More specifically, the variables for time series include: year, month, day, hour and minute. Variables for wind speed include wind.sp. Variables for temperature include temp. Variables for elevation include elev.
+
+### **4. Take a closer look at the key variables**
+
+```{r}
+table(met$year)
+```
+
+```{r}
+table(met$day)
+```
+
+```{r}
+table(met$hour)
+barplot(table(met$hour))
+```
+
+```{r}
+summary(met$temp)
+hist(met$temp)
+```
+
+```{r}
+summary(met$elev)
+```
+
+```{r}
+summary(met$wind.sp)
+```
+
+```{r}
+met$elev[met$elev == 9999.0] <- NA
+summary(met$elev)
+```
+
+The highest weather station is at 4113m.
+
+```{r}
+met <- met[met$temp > -40, ]
+head(met[order(met$temp), ])
+```
+
+```{r}
+summary(met$wind.sp)
+mean(is.na(met$wind.sp))
+```
+
+There are 91,853 missing values in the wind.sp variable. 3.8% of the data are missing.
+
+### **5. Check the data against an external data source**
+
+Using Google to find the location of the coordinates (38.767, -104.300) where the temperature is -17.2C, we find that this is in Yoder, Colorado. The elevation of Yoder, Colorado is about 1,873m which is about the same as we have recorded in the data set (1838m). The elevation range does make sense because Yoder, Co falls between this. The temperature does not make sense given the month of August that it was recorded in. According to Google, temperatures in Yoder, Colorado during August are in the 80F range.
+
+```{r}
+met <- met[met$temp > -17.2, ]
+met <- met[!is.na(met$temp), ]
+met <- met[order(met$temp), ]
+```
+
+### **6. Calculate summary statistics**
+
+```{r}
+elev <- met[which(met$elev == max(met$elev, na.rm = TRUE)), ]
+summary(elev)
+```
+
+```{r}
+cor(elev$temp, elev$wind.sp, use="complete")
+```
+
+```{r}
+cor(elev$temp, elev$hour, use="complete")
+```
+
+```{r}
+cor(elev$wind.sp, elev$day, use="complete")
+```
+
+```{r}
+cor(elev$wind.sp, elev$hour, use="complete")
+```
+
+```{r}
+cor(elev$temp, elev$day, use="complete")
+```
+
+### **7. Exploratory graphs**
+
+```{r}
+hist(met$elev)
+```
+
+```{r}
+hist(met$temp)
+```
+
+```{r}
+hist(met$wind.sp)
+```
+
+```{r}
+library(leaflet)
+leaflet(elev) %>%
+  addProviderTiles('OpenStreetMap') %>%
+  addCircles(lat = ~lat, lng = ~lon, opacity = 1, fillOpacity = 1, radius = 100)
+```
+
+```{r}
+library(lubridate)
+elev$date <- with(elev, ymd_h(paste(year, month, day, hour, sep= ' ')))
+summary(elev$date)
+```
+
+```{r}
+elev <- elev[order(elev$date), ]
+head(elev)
+```
+
+```{r}
+plot(elev$date, elev$temp, type="l",
+main = "Temperature vs. Date")
+```
+
+```{r}
+plot(elev$date, elev$wind.sp, type="l",
+main = "Wind Speed vs. Date")
+```
+
+From the time series plots of temperature versus date, we can see that the highest peak in temperature seems to occur right around August 5th with the lowest peak occurring near the start of September, around August 26th. The wind speed versus date plot shows the highest peak in wind speed around August 26th which can relate to lower temperatures or a change in temperature as seen in the temperature versus date plot.
+
+### **8. Ask questions**
+
+I did have a question as to what the variable wind.type.code represented. Upon looking through the data dictionary, I did find out that it meant "Wind-observation type code" where a value of N for example, meant normal winds. I would like to know however, what exactly characterizes wind observations to be "normal" versus "Beaufort."
