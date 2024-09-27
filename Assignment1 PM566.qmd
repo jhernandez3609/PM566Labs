@@ -1,0 +1,27 @@
+---
+title: "Assignment1 PM566"
+author: "Jazmin Hernandez"
+format: pdf
+editor: visual
+---
+
+## Question 1
+
+```{r}
+data.table()
+data1 <- fread ("2002data.csv")
+data2 <- fread ("2022data.csv")
+```
+
+```{r}
+dim(data1)
+head(data1)
+tail(data1)
+```
+
+```{r}
+dim(data2)
+head(data2)
+tail(data2)
+```
+
