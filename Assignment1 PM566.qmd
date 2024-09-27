@@ -1,14 +1,21 @@
 ---
-title: "Assignment1 PM566"
+title: "Assignment 1 PM566"
 author: "Jazmin Hernandez"
-format: pdf
+format: html
 editor: visual
+embed-resources: true
 ---
+
+# Assignment 1
 
 ## Question 1
 
+### Data 2002
+
+Looking at the 2002 data (data1) and summarizing the results, the data has 22 columns 15,976 observations. Based on the headers and footers, the first and last 6 rows of the data show no deviations from normality. The key variable in question is Daily Mean PM2.5 Concentration and is characterized as a numeric variable. There are no missing values and the min and max values are all within reasonable range.
+
 ```{r}
-data.table()
+library(data.table)
 data1 <- fread ("2002data.csv")
 data2 <- fread ("2022data.csv")
 ```
@@ -20,8 +27,168 @@ tail(data1)
 ```
 
 ```{r}
+str(data1)
+```
+
+```{r}
+summary(data1$`Daily Mean PM2.5 Concentration`)
+```
+
+```{r}
+mean(is.na(data1$`Daily Mean PM2.5 Concentration`))
+```
+
+```{r}
+boxplot(data1$`Daily Mean PM2.5 Concentration`, col = "blue")
+```
+
+```{r}
+hist(data1$`Daily Mean PM2.5 Concentration`,
+      main = "Histogram of Daily Mean PM2.5 Concentration 2002", 
+     xlab = "2002 values of Daily Mean PM2.5 Concentrations", 
+     ylab = "Frequency", 
+     col = "lightblue", 
+     border = "black")
+```
+
+### 2022 Data Set
+
+For the 2022 data (data2) and summarizing the results, the data has 22 columns 59,756 observations. Based on the headers and footers, the first and last 6 rows of the data show no deviations from normality. There are no missing values in this data set but looking at the min and max values, we can see that the min PM2.5 concentration is -6.7 which is highly unlikely.
+
+```{r}
 dim(data2)
 head(data2)
 tail(data2)
 ```
 
+```{r}
+str(data2)
+```
+
+```{r}
+summary(data2$`Daily Mean PM2.5 Concentration`)
+```
+
+```{r}
+mean(is.na(data2$`Daily Mean PM2.5 Concentration`))
+```
+
+```{r}
+boxplot(data2$`Daily Mean PM2.5 Concentration`, col = "blue")
+```
+
+```{r}
+hist(data2$`Daily Mean PM2.5 Concentration`,
+      main = "Histogram of Daily Mean PM2.5 Concentration 2022", 
+     xlab = "2022 values of Daily Mean PM2.5 Concentrations", 
+     ylab = "Frequency", 
+     col = "purple", 
+     border = "black")
+```
+
+## Question 2
+
+```{r}
+data1[, Year := 2002]
+data2[, Year := 2022]
+combined_data <- rbind(data1, data2)
+setnames(combined_data, old = c( "Site Latitude", "Site Longitude"), new = c("Latitude", "Longitude"))
+```
+
+## Question 3
+
+For the year 2002 which is represented by the blue circles, we can see that they are overtaken by the year 2022 (red) circles because of the almost 44,000 observation difference between the data sets. However, it is also evident that most of the PM2.5 concentration is along the coast.
+
+```{r}
+library(leaflet)
+map <- leaflet(data = combined_data) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    lng = ~Longitude,
+    lat = ~Latitude,
+    color = ~ifelse(Year == 2002, "blue", "red"),  # Color by year
+    radius = 5,
+    stroke = FALSE,
+    fillOpacity = 0.7,
+    popup = ~paste("Site ID:", `Site ID`, "<br>", "Year:", Year)
+  )
+map
+```
+
+## Question 4
+
+There are not any missing values for PM2.5 in the combined data sets. However, checking for implausible values, there were 215 total negative observations for PM2.5. This was only recorded for the year 2022 which would explain why it has so many more observations compared to 2002. Most of these observations occurred in Willows-Colusa Street during January through July and in Lebec from January to December.
+
+```{r}
+mean(is.na(combined_data$`Daily Mean PM2.5 Concentration`))
+```
+
+```{r}
+implausible_PM2.5 <- combined_data[`Daily Mean PM2.5 Concentration` < 0, .(Date, Year, `Local Site Name`, `Daily Mean PM2.5 Concentration`)] 
+print(implausible_PM2.5)
+```
+
+## Question 5
+
+### State Level
+
+From the summary statistics, we can see that the max PM2.5 level is 302.50 ug/m3. From the box plot we can see that this reading belongs from the year 2022. There is also a difference seen in the increase of PM2.5 from the year 2002 to 2022 from about 100 ug/m3 to 302.50 ug/m3.
+
+```{r}
+library(ggplot2)
+ggplot(combined_data, aes(x = factor(Year), y = `Daily Mean PM2.5 Concentration`)) +
+  geom_boxplot() +
+  labs(title = "PM2.5 Levels by Year (State Level)", x = "Year", y = "PM 2.5 Levels") +
+  theme_minimal()
+```
+
+```{r}
+summary(combined_data$`Daily Mean PM2.5 Concentration`)
+```
+
+### For County Level
+
+After grouping by county level, we can see that Kern County has the highest PM2.5 concentration of 15.60 ug/m3 and El Dorado has the lowest with 4.47 ug/m3. This is also reflected in the histogram although it is clearer to see in the summary statistics of the counties.
+
+```{r}
+library(dplyr)
+county_summary <- combined_data %>%
+  group_by(County) %>%
+  summarise(
+    Mean_PM2.5 = mean(`Daily Mean PM2.5 Concentration`, na.rm = TRUE),
+    Median_PM2.5 = median(`Daily Mean PM2.5 Concentration`, na.rm = TRUE),
+    SD_PM2.5 = sd(`Daily Mean PM2.5 Concentration`, na.rm = TRUE),
+    .groups = 'drop'
+  )
+
+print(county_summary)
+```
+
+```{r}
+ggplot(combined_data, aes(x = `Daily Mean PM2.5 Concentration`, fill = factor(County))) +
+  geom_histogram(binwidth = 5, position = "identity", alpha = 0.5) +
+  labs(title = "Distribution of PM 2.5 Levels by County", x = "PM 2.5 Levels", fill = "County") +
+  theme_minimal()
+```
+
+### For Los Angeles Level
+
+Filtering by only the LA site level, the mean PM2.5 level is 13.32 ug/m3 just below that of Kern County. From the line plot, it appears that the particulate matter concentrations increase as the year ends. Also, sites 60377500 and below seem to have the lowest PM2.5 concentration with sites 60372500 and above having the highest concentrations.
+
+```{r}
+LA_Site <- combined_data %>% filter(County == "Los Angeles")
+LA_summary <- LA_Site %>%
+  summarise(
+    Mean_PM2.5 = mean(`Daily Mean PM2.5 Concentration`, na.rm = TRUE),
+    Median_PM2.5 = median(`Daily Mean PM2.5 Concentration`, na.rm = TRUE),
+    SD_PM2.5 = sd(`Daily Mean PM2.5 Concentration`, na.rm = TRUE)
+  )
+
+print(LA_summary)
+```
+
+```{r}
+ggplot(LA_Site, aes(x = Date, y = `Daily Mean PM2.5 Concentration`, group = `Site ID`, color = `Site ID`)) +
+  geom_line() +
+  labs(title = "PM 2.5 Levels Over Time at Sites in Los Angeles", x = "Date", y = "PM 2.5 Levels") 
+```
