@@ -1,0 +1,9 @@
+---
+title: "Lab 4"
+author: "Jazmin Hernandez"
+format: pdf
+editor: visual
+embed-resources: true 
+---
+
+## Quarto
