@@ -1,0 +1,21 @@
+---
+title: "Lab 5"
+author: "Jazmin Hernandez"
+format: pdf
+editor: visual
+embed-resources: true
+---
+
+## Reading in Data 
+
+```{r}
+library(data.table)
+library(dtplyr)
+library(dplyr)
+library(ggplot2)
+met <- read.csv(file.path("~", "Github", "met_all.gz"))
+tmp <- "met_all.gz"
+dat <- fread(tmp)
+head(dat)
+```
+
