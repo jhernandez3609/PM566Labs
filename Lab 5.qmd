@@ -1,7 +1,7 @@
 ---
 title: "Lab 5"
 author: "Jazmin Hernandez"
-format: pdf
+format: html 
 editor: visual
 embed-resources: true
 ---
@@ -69,14 +69,14 @@ head(met[, c('USAFID', 'WBAN', 'STATE')], n = 4)
 
 ## Question 1: Representative station for the US
 
-The three weather stations that best represent continental US are located in California, Arkansas, and Michigan. This makes sense as these states are located at different extremes of the US and would therefore better be representative of weather in the US. 
+The three weather stations that best represent continental US are located in California, Arkansas, and Michigan. This makes sense as these states are located at different extremes of the US and would therefore better be representative of weather in the US.
 
 ```{r}
 # Finding median values
 library(dplyr)
 library(data.table)
 median_weather <- met |>
-group_by(USAFID, STATE, CTRY, lat, lon, temp) |>
+group_by(USAFID, STATE, CTRY, lat, lon, temp, wind.sp, atm.press) |>
   summarise(
     median_temp = median(temp, na.rm = TRUE),
     median_wind.sp = median(wind.sp, na.rm = TRUE),
@@ -84,7 +84,6 @@ group_by(USAFID, STATE, CTRY, lat, lon, temp) |>
   )
 head(median_weather, 4)
 ```
-
 
 ```{r}
 # Using quantile function 
@@ -106,22 +105,22 @@ filter(median_wind.sp <= wind.sp_quantiles[3])
 rep_stations_atm.press <- median_weather |>
 filter(median_atm.press <= atm.press_quantiles[3])
 ```
+
 ```{r}
 print(head(rep_stations_temp, 3))
 print(head(rep_stations_wind.sp, 3))
 print(head(rep_stations_atm.press, 3))
 ```
 
-
 ## Question 2: Representative station per state
 
-The station shown at the lowest latitude is located in Montana, CA. 
+The station shown at the lowest latitude is located in Montana, CA.
+
 ```{r}
 # Calculating euclidean distance
 overall_median <- colMeans(median_weather[, c("median_temp", "median_wind.sp", "median_atm.press")], na.rm = TRUE)
 met <- median_weather
 ```
-
 
 ```{r}
 median_weather <- median_weather |>
@@ -133,6 +132,7 @@ median_weather <- median_weather |>
     )
   )
 ```
+
 ```{r}
 representative_stations_state <- data.frame()
 
@@ -147,12 +147,14 @@ for (state in unique(median_weather$STATE))
     arrange(euclidean_distance, lat) |>
     slice(1)
 ```
+
 ```{r}
 representative_stations_state <- rbind(representative_stations_state, selected_station)
 print(representative_stations_state)
 ```
 
 ## Question 3: In the middle?
+
 ```{r}
 library(data.table)
 library(dplyr)
@@ -168,6 +170,7 @@ state_midpoints <- met |>
 print(head(state_midpoints, 5))
 
 ```
+
 ```{r}
 distances <- met |>
 inner_join(state_midpoints, by = "STATE") |>
@@ -186,6 +189,7 @@ slice(which.min(distance)) |>
 ungroup()
 print(head(closest_stations, 5)) 
 ```
+
 ```{r}
 all_stations <- bind_rows(
 representative_stations_state,
@@ -212,18 +216,19 @@ labels = c("Closest to Midpoint of State", "Representative Stations"),
 title = "Station Types") 
 ```
 
-
 ## Question 4: Means of means
+
 ```{r}
 state_summary <- met |>
   group_by(STATE) |>
   summarise(
     avg_temp = mean(temp, na.rm = TRUE),
-    avg_wind_speed = mean(wind.sp, na.rm = TRUE),
-    avg_atm_pressure = mean(atm.press, na.rm = TRUE),
+    avg_wind.sp = mean(wind.sp, na.rm = TRUE),
+    avg_atm.press = mean(atm.press, na.rm = TRUE),
     .groups = 'drop'
   )
 ```
+
 ```{r}
 state_summary <- state_summary |>
   mutate(
@@ -246,17 +251,9 @@ summarise(
     num_stations = n_distinct(STATE),  # Assuming each State corresponds to one station
     num_states = n(),  # Number of unique states in each temperature level
     mean_temp = mean(avg_temp, na.rm = TRUE),
-    mean_wind_speed = mean(avg_wind_speed, na.rm = TRUE),
-    mean_atm_pressure = mean(avg_atm_pressure, na.rm = TRUE),
+    mean_wind_speed = mean(avg_wind.sp, na.rm = TRUE),
+    mean_atm_pressure = mean(avg_atm.press, na.rm = TRUE),
     .groups = 'drop'
   )
 print(summary_table)
 ```
-
-
-
-
-
-
-
-
