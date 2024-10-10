@@ -20,7 +20,7 @@ mt_samples <- mt_samples |>
 head(mt_samples)
 ```
 
-### Question 1: What specialties do we have?
+### Question 1
 
 There are 40 different medical specialties. Specialties such as Cosmetic / Plastic Surgery and Dentistry both have 27 counts. Diets and Nutrition and Rheumatology specialties both have counts of 10. Autopsy and Lab Medicine - Pathology specialties both have counts of 8. There does not appear to be an even distribution between the medical specialties as we can see that Surgery has 1103 counts compared to\
 Hospice - Palliative Care with only 6 counts.
