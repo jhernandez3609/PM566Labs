@@ -21,8 +21,10 @@ head(mt_samples)
 ```
 
 ### Question 1: What specialties do we have?
-There are 40 different medical specialties. Specialties such as Cosmetic / Plastic Surgery and Dentistry both have 27 counts. Diets and Nutrition and Rheumatology specialties both have counts of 10. Autopsy and Lab Medicine - Pathology specialties both have counts of 8. There does not appear to be an even distribution between the medical specialties as we can see that Surgery has 1103 counts compared to 	
-Hospice - Palliative Care with only 6 counts.  
+
+There are 40 different medical specialties. Specialties such as Cosmetic / Plastic Surgery and Dentistry both have 27 counts. Diets and Nutrition and Rheumatology specialties both have counts of 10. Autopsy and Lab Medicine - Pathology specialties both have counts of 8. There does not appear to be an even distribution between the medical specialties as we can see that Surgery has 1103 counts compared to\
+Hospice - Palliative Care with only 6 counts.
+
 ```{r}
 med_specialty_counts <- mt_samples |>
   count(medical_specialty, name = "n", sort = TRUE)
@@ -38,7 +40,8 @@ print(overlap_counts)
 
 ### Question 2
 
-The list shows that the word "the" appears the most (149888 times) in the text. This makes sense because stop words usually appear the most in English text. Looking at the top tenth word that appears the most, patient, which appears 22065	times, it does give us an insight that the text is focused on medical transcripts mainly revolving around patient interactions. 
+The list shows that the word "the" appears the most (149888 times) in the text. This makes sense because stop words usually appear the most in English text. Looking at the top tenth word that appears the most, patient, which appears 22065 times, it does give us an insight that the text is focused on medical transcripts mainly revolving around patient interactions.
+
 ```{r}
 mt_samples |> 
   unnest_tokens(token, transcription) |> 
@@ -51,7 +54,8 @@ mt_samples |>
 
 ### Question 3
 
-Now that we have removed stop words, we can see that the word 'patient' appears the most which is more fitting given that this is a medical transcript. Looking at the rest of the top 20 words, it is clear that this text is about patient procedures or charting. 
+Now that we have removed stop words, we can see that the word 'patient' appears the most which is more fitting given that this is a medical transcript. Looking at the rest of the top 20 words, it is clear that this text is about patient procedures or charting.
+
 ```{r}
 library(forcats)
 library(tidytext)
@@ -68,11 +72,13 @@ mt_samples |>
 ### Question 4
 
 We have a lot more insight into what the text is about when tokenizing into tri-grams rather than bi-grams. Bi-grams is mostly stop words but looking at tri-grams, we can see more insight into procedures and even patient symptoms.
+
 ```{r}
 mt_samples |> 
 unnest_tokens(bigram, transcription, token = "ngrams", n = 2) |>
 count(bigram, sort = TRUE)
 ```
+
 ```{r}
 mt_samples |>
   unnest_tokens(trigram, transcription, token = "ngrams", n = 3) |>
@@ -89,12 +95,14 @@ bi_grams <- mt_samples|>
 unnest_tokens(bigram, transcription, token = "ngrams", n = 2) 
 print(head(bi_grams))
 ```
+
 ```{r}
 before_after <- bi_grams|>
 filter(str_detect(bigram, word_to_analyze))
 before_after <- before_after |>
 separate(bigram, into = c("word1", "word2"), sep = " ")
 ```
+
 ```{r}
 before_count <- before_after |>
 filter(word2 == word_to_analyze) |>
@@ -106,6 +114,7 @@ filter(word1 == word_to_analyze) |>
 count(word2, sort = TRUE) |>
 rename(after = word2)
 ```
+
 ```{r}
 print("Words Before 'patient':")
 print(before_count)
@@ -114,11 +123,10 @@ print("Words After 'patient':")
 print(after_count)
 ```
 
-
-
 ### Question 6
 
-The most used word in allergy/immunology is 'history.' Autopsy is 'left,' Bariatrics is 'patient,' etc. The top 5 most used words include 'patient' 'left' 'history' '2', and '1'. 
+The most used word in allergy/immunology is 'history.' Autopsy is 'left,' Bariatrics is 'patient,' etc. The top 5 most used words include 'patient' 'left' 'history' '2', and '1'.
+
 ```{r}
 most_used_words <- mt_samples |>
   unnest_tokens(word, transcription) |>
@@ -129,6 +137,7 @@ most_used_words <- mt_samples |>
 print (most_used_words)
 
 ```
+
 ```{r}
 most_used_words <- mt_samples|>
   unnest_tokens(word, transcription)|>      
@@ -137,13 +146,3 @@ most_used_words <- mt_samples|>
   top_n(5, n)
 print(most_used_words)
 ```
-
-
-
-
-
-
-
-
-
-
