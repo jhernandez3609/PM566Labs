@@ -1,0 +1,9 @@
+---
+title: "Assignment 2"
+author: "Jazmin Hernandez"
+format: html
+editor: visual
+embed-resources: true 
+---
+
+## Quarto
