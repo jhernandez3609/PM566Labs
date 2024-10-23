@@ -138,8 +138,7 @@ print(summary_exposure)
 
 ## Looking at the Data (EDA)
 
-1.  What is the association between BMI and FEV (forced expiratory volume)? 
-From the scatter plot of BMI vs FEV, there does appear to be a positive correlation where as BMI increases, so does forced expiratory volume.
+1.  What is the association between BMI and FEV (forced expiratory volume)? From the scatter plot of BMI vs FEV, there does appear to be a positive correlation where as BMI increases, so does forced expiratory volume.
 
 ```{r}
 colSums(is.na(merged_data|> select(bmi, fev)))
@@ -205,7 +204,7 @@ labs(
 
 2.  Stacked histograms of FEV by BMI category and FEV by smoke/gas exposure. Use different color schemes than the ggplot default.
 
-The BMI categories seem to fall within similar ranges in this stacked histogram. Being underweight appears to have the lowest counts of FEV and being obese has the highest counts.  
+The BMI categories seem to fall within similar ranges in this stacked histogram. Being underweight appears to have the lowest counts of FEV and being obese has the highest counts.
 
 ```{r}
 ggplot(merged_data, aes(x = fev, fill = obesity_level)) +
@@ -223,8 +222,8 @@ ggplot(merged_data, aes(x = fev, fill = obesity_level)) +
   theme_minimal()
 ```
 
-
 The stacked histogram of FEV by smoke/gas exposure shows the category for both exposures has the highest count with second-hand smoke category having the lowest count.
+
 ```{r}
 ggplot(merged_data, aes(x = fev, fill = smoke_gas_exposure)) +
 geom_histogram(position = "stack", bins = 30, alpha = 0.7) +
@@ -236,7 +235,6 @@ y = "Count"
   ) +
 theme_minimal()
 ```
-
 
 3.  Barchart of BMI by smoke/gas exposure. Taking the average BMI by smoke/gas exposure category we can see that there does not seem to be a significant association between smoke/gas exposure and BMI. Gas stove exposure and non-exposed are the two categories that seem to be slightly associated with a lower BMI while having both exposures and secondhand smoke only seem to be slightly more associated with higher BMI.
 
@@ -285,8 +283,8 @@ ggplot(merged_data, aes(x = smoke_gas_exposure, y = fev, fill = smoke_gas_exposu
   theme_minimal()
 ```
 
-5.  A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities.
-The map shows greater PM 2.5 concentrations in the Mira Loma area with a concentration of 29.97 µg/m3. Lompoc seems to have the lowest PM 2.5 concentration with 5.96 µg/m3. 
+5.  A leaflet map showing the concentrations of PM2.5 mass in each of the CHS communities. The map shows greater PM 2.5 concentrations in the Mira Loma area with a concentration of 29.97 µg/m3. Lompoc seems to have the lowest PM 2.5 concentration with 5.96 µg/m3.
+
 ```{r}
 library(leaflet)
 leaflet(merged_data) |>
@@ -298,8 +296,7 @@ addLegend("bottomright", pal = colorNumeric("Blues", merged_data$pm25_mass),
 values = merged_data$pm25_mass, title = "PM2.5 Concentration")
 ```
 
-6. Choose a visualization to examine whether PM2.5 mass is associated with FEV.
-The scatterplot shows that there seems to be a slightly negative association between pm2.5 mass and FEV. We can see that as mass increases, FEV slightly decreases. 
+6.  Choose a visualization to examine whether PM2.5 mass is associated with FEV. The scatterplot shows that there seems to be a slightly negative association between pm2.5 mass and FEV. We can see that as mass increases, FEV slightly decreases.
 
 ```{r}
 ggplot(merged_data, aes(x = pm25_mass, y = fev)) +
@@ -310,7 +307,3 @@ ggplot(merged_data, aes(x = pm25_mass, y = fev)) +
        y = "FEV") +
   theme_minimal()
 ```
-
-
-
-
