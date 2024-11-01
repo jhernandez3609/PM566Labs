@@ -3108,8 +3108,6 @@ vertical-align: -.125em;
 </header>
 
 
-<section id="lab-9" class="level1">
-<h1>Lab 9</h1>
 <section id="problem-1-vectorization" class="level3">
 <h3 class="anchored" data-anchor-id="problem-1-vectorization">Problem 1: Vectorization</h3>
 <div class="cell">
@@ -3163,9 +3161,9 @@ vertical-align: -.125em;
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-      expr   min     lq    mean median     uq    max neval
-    fun1() 275.5 321.35 438.835  418.2 511.95  856.1   100
- fun1alt()  15.2  19.10  65.166   23.6  28.20 3834.4   100</code></pre>
+      expr   min    lq    mean median    uq    max neval
+    fun1() 286.4 340.4 425.058 425.35 477.2  964.1   100
+ fun1alt()  15.9  20.7  50.530  23.30  27.8 2560.5   100</code></pre>
 </div>
 </div>
 </section>
@@ -3211,9 +3209,9 @@ vertical-align: -.125em;
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(benchmark_results)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Unit: microseconds
-       expr    min      lq     mean  median      uq    max neval
-    fun2(x) 1040.6 1282.25 1801.245 1716.35 2151.30 4778.8   100
- fun2alt(x)  605.1  758.00 1051.400  998.05 1206.85 4256.6   100</code></pre>
+       expr   min      lq     mean median     uq    max neval
+    fun2(x) 991.1 1203.20 1775.273 1584.6 2166.4 5063.1   100
+ fun2alt(x) 570.6  679.15 1008.656  942.2 1193.1 3813.3   100</code></pre>
 </div>
 </div>
 </section>
@@ -3271,9 +3269,9 @@ x            4.8650100 5.04883353</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ci_boot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                  2.5%      97.5%
-(Intercept) -0.1376669 0.04840403
-d$x          4.8694729 5.04429811</code></pre>
+<pre><code>                 2.5%      97.5%
+(Intercept) -0.137503 0.04752828
+d$x          4.869373 5.04456002</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -3292,7 +3290,7 @@ d$x          4.8694729 5.04429811</code></pre>
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(time_single_core)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-   0.01    0.00    4.17 </code></pre>
+   0.00    0.00    4.09 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Multi-core execution time:&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3301,10 +3299,9 @@ d$x          4.8694729 5.04429811</code></pre>
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(time_multi_core)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-   0.00    0.00    2.37 </code></pre>
+   0.00    0.00    2.55 </code></pre>
 </div>
 </div>
-</section>
 </section>
 
 </main>
