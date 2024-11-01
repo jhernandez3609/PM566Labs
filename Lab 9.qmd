@@ -1,0 +1,167 @@
+---
+title: "Lab 9"
+author: "Jazmin Hernandez"
+format: html
+editor: visual
+embed-resources: true
+---
+
+# Lab 9
+
+### Problem 1: Vectorization
+
+```{r}
+fun1 <- function(n = 100, k = 4, lambda = 4) {
+  x <- NULL
+  
+  for (i in 1:n){
+    x <- rbind(x, rpois(k, lambda))    
+  }
+  
+  return(x)
+}
+```
+
+```{r}
+fun1alt <- function(n = 100, k = 4, lambda = 4) {
+matrix(rpois(n * k, lambda), nrow = n, ncol = k)
+}
+```
+
+```{r}
+set.seed(123)
+
+# Generate datasets using both functions
+result_fun1 <- fun1(n = 100, k = 4, lambda = 4)
+result_fun1alt <- fun1alt(n = 100, k = 4, lambda = 4)
+
+# Check if the dimensions are the same
+dim_same <- all(dim(result_fun1) == dim(result_fun1alt))
+
+dim_same
+
+```
+
+```{r}
+par(mfrow = c(1, 2))
+hist(result_fun1, main = "Distribution from fun1", xlab = "Values", breaks = 30)
+hist(result_fun1alt, main = "Distribution from fun1alt", xlab = "Values", breaks = 30)
+```
+
+```{r}
+library(microbenchmark)
+microbenchmark::microbenchmark(
+  fun1(),
+  fun1alt()
+)
+```
+
+### 2.
+
+```{r}
+set.seed(1234)
+x <- matrix(rnorm(1e4), nrow=10)
+
+fun2 <- function(x) {
+  apply(x, 2, max)
+}
+# alternate function
+fun2alt <- function(x) {
+max_values <- numeric(ncol(x))  
+for (j in seq_len(ncol(x))) {
+max_values[j] <- max(x[, j])
+  }
+  return(max_values)
+}
+```
+
+```{r}
+output_fun2 <- fun2(x)
+output_fun2alt <- fun2alt(x)
+
+same_output <- all(output_fun2 == output_fun2alt)
+
+# Result should be true 
+print(same_output)
+```
+
+```{r}
+# Checking speed
+benchmark_results <- microbenchmark(
+  fun2(x),
+  fun2alt(x),
+  times = 100
+)
+
+# Print benchmarking results
+print(benchmark_results)
+```
+
+### Problem 3: Parallelization
+
+```{r echo  = FALSE}
+library(parallel)
+library(dplyr)
+
+my_boot <- function(dat, my_stat, R, ncpus) {
+  # Create a cluster for parallel processing - Windows
+  cl <- makeCluster(ncpus)
+  clusterExport(cl, varlist = c("my_stat", "dat"))
+  
+  # bootstrapping
+  boot_results <- parLapply(cl, 1:R, function(i) {
+    sample_indices <- sample(1:nrow(dat), replace = TRUE)
+    boot_data <- dat[sample_indices, ]
+    my_stat(boot_data)
+  })
+  
+  stopCluster(cl) 
+  do.call(rbind, boot_results)  
+}
+```
+
+```{r}
+my_stat <- function(d) {
+  coef(lm(d$y ~ d$x))  
+}
+set.seed(1)
+n <- 500
+R <- 1e4
+
+x <- cbind(rnorm(n))
+y <- x * 5 + rnorm(n)
+
+dat <- data.frame(x = x, y = y) 
+```
+
+```{r}
+ans0 <- confint(lm(y ~ x, data = dat))  
+ans1 <- my_boot(dat = dat, my_stat, R = R, ncpus = 2L)
+ci_boot <- t(apply(ans1, 2, quantile, c(0.025, 0.975)))
+```
+
+```{r}
+# Print results
+print("OLS Confidence Intervals:")
+print(ans0)
+
+print("Bootstrap Confidence Intervals:")
+print(ci_boot)
+```
+
+```{r}
+time_single_core <- system.time({
+  ans_single <- my_boot(dat = dat, my_stat, R = 4000, ncpus = 1L)
+})
+time_multi_core <- system.time({
+  ans_multi <- my_boot(dat = dat, my_stat, R = 4000, ncpus = 2L)
+})
+```
+
+```{r}
+print("Single-core execution time:")
+print(time_single_core)
+
+print("Multi-core execution time:")
+print(time_multi_core)
+```
