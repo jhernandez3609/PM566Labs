@@ -6,8 +6,6 @@ editor: visual
 embed-resources: true
 ---
 
-# Lab 9
-
 ### Problem 1: Vectorization
 
 ```{r}
