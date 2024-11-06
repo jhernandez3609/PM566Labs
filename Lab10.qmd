@@ -1,0 +1,193 @@
+---
+title: "Lab 10 - SQL"
+author: "Jazmin Hernandez"
+format: html
+editor: visual
+embed-resources: true
+---
+
+## Setup
+
+```{r}
+library(RSQLite)
+library(DBI)
+```
+
+```{r}
+con <- dbConnect(SQLite(), ":memory:")
+```
+
+```{r}
+actor <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/actor.csv")
+rental <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/rental.csv")
+customer <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/customer.csv")
+payment <- read.csv("https://raw.githubusercontent.com/ivanceras/sakila/master/csv-sakila-db/payment_p2007_01.csv")
+```
+
+```{r}
+dbWriteTable(con, "actor", actor)
+dbWriteTable(con, "rental", rental)
+dbWriteTable(con, "customer", customer)
+dbWriteTable(con, "payment", payment)
+```
+
+```{r}
+dbListTables(con)
+```
+
+```{r}
+dbGetQuery(con, "PRAGMA table_info(actor)")
+```
+
+## Exercise 1
+
+```{r}
+query <- "SELECT actor_id, first_name, last_name FROM actor ORDER BY last_name, first_name"
+actors_sorted <- dbGetQuery(con, query)
+print(head(actors_sorted, 20))
+```
+
+## Exercise 2
+
+```{r}
+query <- "SELECT actor_id, first_name, last_name FROM actor WHERE last_name IN ('WILLIAMS', 'DAVIS')"
+actors_williams_davis <- dbGetQuery(con, query)
+print(actors_williams_davis)
+```
+
+## Exercise 3
+
+```{r}
+query <- "SELECT DISTINCT customer_id FROM rental WHERE date(rental_date) = '2005-07-05'"
+customers_rented <- dbGetQuery(con, query)
+print(customers_rented)
+```
+
+## Exercise 4
+
+### Exercise 4.1
+
+```{r}
+query <- "SELECT * FROM payment WHERE amount IN (1.99, 7.99, 9.99)"
+payments <- dbGetQuery(con, query)
+print(head(payments, 20))
+```
+
+### Exercise 4.2
+```{r}
+query <- "SELECT * FROM payment WHERE amount > 5"
+greater_than_5 <- dbGetQuery(con, query)
+print(head(greater_than_5, 20))
+```
+
+### Exercise 4.3
+```{r}
+query <- "SELECT * FROM payment WHERE amount > 5 AND amount < 8"
+greater_than_5_and_less_than_8 <- dbGetQuery(con, query)
+print(head(greater_than_5_and_less_than_8, 20))
+```
+
+## Exercise 5
+```{r}
+query <- "
+  SELECT payment.payment_id, payment.amount
+  FROM payment
+  INNER JOIN customer
+  ON payment.customer_id = customer.customer_id
+  WHERE customer.last_name = 'DAVIS';
+"
+payments_davis <- dbGetQuery(con, query)
+print(payments_davis)
+```
+
+## Exercise 6
+### Exercise 6.1
+```{r}
+query <- "SELECT COUNT(*) FROM rental"
+rental_count <- dbGetQuery(con, query)
+print(rental_count)
+```
+
+### Exercise 6.2
+```{r}
+query <- "SELECT customer_id, COUNT(*) AS rental_count
+          FROM rental
+          GROUP BY customer_id;"
+rentals_customer <- dbGetQuery(con, query)
+print(head(rentals_customer, 20))
+```
+### Exercise 6.3
+```{r}
+query <- "SELECT customer_id, COUNT(*) AS rental_count
+          FROM rental
+          GROUP BY customer_id
+          ORDER BY rental_count DESC;"
+rentals_desc <- dbGetQuery(con, query)
+print(head(rentals_desc, 20))
+```
+
+### Exercise 6.4
+```{r}
+query <- "SELECT customer_id, COUNT(*) AS rental_count
+          FROM rental
+          GROUP BY customer_id
+          HAVING COUNT(*) >= 40
+          ORDER BY rental_count DESC;"
+rentals_40 <- dbGetQuery(con, query)
+print(rentals_40)
+```
+
+## Exercise 7
+```{r}
+query <- "SELECT 
+      MAX(amount) AS max_amount,
+      MIN(amount) AS min_amount,
+      AVG(amount) AS avg_amount,
+      SUM(amount) AS total_amount
+  FROM payment;"
+payment_stats <- dbGetQuery(con, query)
+print(payment_stats)
+
+```
+
+
+### Exercise 7.1
+
+```{r}
+query <- "SELECT 
+      customer_id,
+      MAX(amount) AS max_amount,
+      MIN(amount) AS min_amount,
+      AVG(amount) AS avg_amount,
+      SUM(amount) AS total_amount
+  FROM payment
+  GROUP BY customer_id;"
+payment_stats_customerid <- dbGetQuery(con, query)
+print(head(payment_stats_customerid, 20))
+```
+
+### Exercise 7.2
+```{r}
+query <- "SELECT 
+      customer_id,
+      MAX(amount) AS max_amount,
+      MIN(amount) AS min_amount,
+      AVG(amount) AS avg_amount,
+      SUM(amount) AS total_amount
+  FROM payment
+  GROUP BY customer_id
+  HAVING COUNT(*) > 5;"
+customer_payment_5 <- dbGetQuery(con, query)
+print(head(customer_payment_5, 20))
+```
+
+```{r}
+# clean up
+dbDisconnect(con)
+
+```
+
+
+
+
+
