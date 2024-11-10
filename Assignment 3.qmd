@@ -1,0 +1,172 @@
+---
+title: "Assignment 03 - Text Mining"
+author: "Jazmin Hernandez"
+format: html
+editor: visual
+embed-resources: true
+---
+
+### 1.
+
+Before removing the stopwords, the number of each token is as expected with most words being snowball stopwords. However, after removing stopwords, tokens such as covid, 19, patients and cancer appear most often which is more appropriate given the articles being from PubMed searches. The five most common tokens for each search term are as follows:
+
+- COVID: covid
+- Cystic fibrosis: fibrosis
+- Meningitis: patients
+- Preeclampsia: pre
+- Prostate cancer: cancer
+
+
+```{r echo=FALSE}
+library(tidytext)
+library(stringr)
+library(readr)
+file_path <- "C:/Users/jhern/Downloads/pubmed.csv"
+abstracts <- read_csv(file_path)
+```
+
+```{r}
+library(dplyr)
+abstracts |>
+  unnest_tokens(token, abstract) |>
+  count(token, sort = TRUE)
+```
+
+```{r}
+# Removing stopwords
+abstracts |>
+  unnest_tokens(token, abstract) |>
+  anti_join(stop_words, by = c("token" = "word")) |>
+  count(token, sort = TRUE)
+```
+
+```{r}
+abstracts |>
+  unnest_tokens(token, abstract) |>
+  anti_join(stop_words, by = c("token" = "word")) |>
+  group_by(term) |>  
+  count(token, sort = TRUE) |>  
+  slice_head(n = 5)   
+```
+
+### 2. 
+
+```{r}
+top10_bigrams <- abstracts |>
+  unnest_tokens(bigram, abstract, token = "ngrams", n = 2) |> 
+  count(bigram, sort = TRUE) |>   
+  slice_head(n = 10)  
+top10_bigrams
+```
+
+```{r}
+library(ggplot2)
+top10_bigrams |>
+  ggplot(aes(x = reorder(bigram, n), y = n)) +   # Reorder bigrams based on frequency
+  geom_bar(stat = "identity", fill = "pink") + # Create a bar chart
+  labs(x = "Bigram", y = "Frequency", title = "10 Most Common Bigrams") +
+  coord_flip() +   # Flip the coordinates for better readability
+  theme_minimal()  # Use a minimal theme
+```
+
+### 3.
+
+The 5 tokens from each search term with the highest TF-IDF value are:
+
+- COVID: covid, pandemic, coronavirus, sars, cov
+- Cystic Fibrosis: cf, fibrosis, cystic, cftr, sweat
+- Meningitis: meningitis, meningeal, pachymeningitis, csf, meninges
+- Preeclampsia: eclampsia, preeclampsia, pregnancy, maternal, gestational
+- Prostate Cancer: prostate, androgen, psa, prostatectomy, castration
+
+In question 1, we were counting the number of tokens across the entire dataset which resulted in the words being more snowball stopwords. However, for this question we are focused on words that are specific to each of the search terms. The higher the tf_idf score the more relevant it is to the specific document or search term. 
+
+
+
+
+```{r}
+abstracts|>
+  unnest_tokens(word, abstract) |>  
+  count(term, word, sort = TRUE) |> 
+  bind_tf_idf(word, term, n) |>    
+  group_by(term) |>               
+  slice_max(tf_idf, n = 5) |>
+  ungroup()   
+```
+
+## Sentiment Analysis
+
+### 1.
+
+The most common sentiments for each search term include:
+
+- COVID:  positive
+- Prostate Cancer: negative
+- Preeclampsia: positive
+- Cystic Fibrosis: positive
+- Meningitis: negative
+
+After removing positive and negative from the list we are left with
+
+- COVID:  fear
+- Prostate Cancer: fear
+- Preeclampsia: anticipation
+- Cystic Fibrosis: disgust
+- Meningitis: fear
+
+```{r}
+library(textdata)
+abstracts |>
+  unnest_tokens(word, abstract) |>
+  inner_join(get_sentiments("nrc"), by = "word", relationship = "many-to-many") |>
+  count(term, sentiment, sort = TRUE)
+```
+
+
+
+```{r}
+# removing positive and negative from list
+nrc_fun <- get_sentiments("nrc")
+nrc_fun <- nrc_fun[!nrc_fun$sentiment %in% c("positive","negative"), ]
+abstracts |>
+  unnest_tokens(word, abstract) |>
+  inner_join(nrc_fun, by = "word", relationship = "many-to-many") |> 
+  group_by(term) |> 
+  summarise(sentiment = names(which.max(table(sentiment))))
+```
+
+### 2.
+
+Prostate cancer appears to have a lower variability in sentiment as seen in the lower spread of the score compared to the other search terms. Cystic fibrosis seems to have a slightly more positive spread of sentiment scores compared to the other search terms.
+
+```{r}
+abstracts <- abstracts|>
+  mutate(abstract_id = row_number()) 
+```
+
+```{r}
+afinn <- get_sentiments("afinn")
+data_affin <- abstracts |>
+  unnest_tokens(word, abstract) |>  
+  inner_join(afinn, by = "word") |>
+
+  group_by(abstract_id, term) |>
+  summarise(avg_score = mean(value, na.rm = TRUE), .groups = "drop")
+head(data_affin)
+```
+
+```{r}
+# Creating visualization
+ggplot(data_affin, aes(x = term, y = avg_score)) +
+  geom_boxplot(fill = "pink", color = "black") +
+  theme_minimal() +
+  labs(title = "Average Sentiment Scores using AFFIN",
+       x = "Search Term",
+       y = "Average Sentiment Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+
+
